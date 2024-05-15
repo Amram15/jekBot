@@ -15,7 +15,7 @@
 	"scripts": {
 		"dev": "tsx watch src/index.ts",
 		"build": "tsc",
-		"start": "node ."
+		"start": "node ./build"
 	},
 	"author": "",
 	"license": "ISC"
