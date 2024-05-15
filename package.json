@@ -1,0 +1,22 @@
+{
+	"dependencies": {
+		"discord.js": "^14.15.2",
+		"dotenv": "^16.4.5"
+	},
+	"name": "progressonautomator",
+	"version": "1.0.0",
+	"description": "A simple discord bot",
+	"main": "index.js",
+	"devDependencies": {
+		"@types/node": "^20.8.10",
+		"tsx": "^3.14.0",
+		"typescript": "^5.4.5"
+	},
+	"scripts": {
+		"dev": "tsx watch src/index.ts",
+		"build": "tsc",
+		"start": "node ."
+	},
+	"author": "",
+	"license": "ISC"
+}
