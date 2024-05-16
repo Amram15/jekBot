@@ -2,6 +2,8 @@ import "dotenv/config";
 import { Client, CommandInteraction, IntentsBitField } from "discord.js";
 import setupCommands from "./setupCommands";
 import handleCommands from "./handleCommands";
+import handleMentions from "./handleMentions";
+import { Console } from "console";
 
 const client = new Client({
 	intents: [
@@ -26,6 +28,19 @@ client.on("interactionCreate", async (interaction) => {
 		}
 
 		handleCommands(client, interaction);
+	}
+});
+
+client.on("messageCreate", async (message) => {
+	if (!message.mentions.users.first()) return;
+	if (message.mentions.users.first().id == client.user.id) {
+		if (message.guildId != process.env.Guild) {
+			console.log(`Invalid Server!`);
+			await message.reply("Invalid Server");
+			return;
+		}
+
+		handleMentions(client, message);
 	}
 });
 
