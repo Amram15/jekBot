@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Client, Message, TextChannel } from "discord.js";
+import { Client, InteractionType, Message, TextChannel } from "discord.js";
 import path from "path";
 
 const {
@@ -68,6 +68,14 @@ export default async function (client: Client, message: Message) {
 	try {
 		let images = [];
 
+		if (message.reference) {
+			let m = await (
+				client.channels.cache.get(message.reference.channelId) as TextChannel
+			).messages.fetch(message.reference.messageId);
+
+			if (m.poll) return;
+		}
+
 		for (let i = 0; i < message.attachments.size; i++) {
 			const attachment = message.attachments.at(i);
 			let data = await urlToGenerativePart(
@@ -77,8 +85,6 @@ export default async function (client: Client, message: Message) {
 
 			images.push(data);
 		}
-
-		console.log(images);
 
 		message.reply(await getAI(message.content, images));
 	} catch (err) {

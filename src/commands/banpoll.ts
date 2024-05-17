@@ -8,7 +8,7 @@ import {
 
 module.exports = {
 	name: "banpoll",
-	description: "Checks the connection of the bot",
+	description: "Creates a ban poll for yugioh",
 	options: [
 		{
 			name: "question",
@@ -40,9 +40,13 @@ module.exports = {
 			duration: Number(
 				interaction.options.get("time")
 					? interaction.options.get("time").value
-					: 24
+					: 168
 			),
-			allowMultiselect: Boolean(interaction.options.get("multi-choice") ? interaction.options.get("multi-choice")?.value : true),
+			allowMultiselect: Boolean(
+				interaction.options.get("multi-choice")
+					? interaction.options.get("multi-choice")?.value
+					: true
+			),
 			answers: [
 				{ text: "Banned", emoji: "0️⃣" },
 				{ text: "Limited", emoji: "1️⃣" },
