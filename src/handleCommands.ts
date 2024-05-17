@@ -16,7 +16,7 @@ export default async function (
 
 		await command.callback(client, interaction);
 	} catch (err) {
-		interaction.editReply('error');
+		interaction.editReply("error");
 		console.log(`Error running command ${interaction.commandName}:${err}`);
 	}
 }

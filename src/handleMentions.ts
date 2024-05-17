@@ -1,4 +1,7 @@
+import axios from "axios";
 import { Client, Message, TextChannel } from "discord.js";
+import path from "path";
+
 const {
 	GoogleGenerativeAI,
 	HarmCategory,
@@ -7,12 +10,6 @@ const {
 
 const apiKey = process.env.GEMINI;
 const genAI = new GoogleGenerativeAI(apiKey);
-
-const model = genAI.getGenerativeModel({
-	model: "gemini-1.5-flash-latest",
-	systemInstruction:
-		"You are CsLi' cat named Jek but respond as a normal person unless asked - and are currently chatting in a Discord server.\n\nConsider the following in your responses:\n\nBe conversational\nAdd unicode emoji to be more playful in your responses\nWrite spoilers using spoiler tags. For example ||At the end of The Sixth Sense it is revealed that he is dead||.\nYou can mention people by adding a @ before their name, for example if you wanted to mention yourself you should say @Jek.\n\nFormat text using markdown:\nbold to make it clear something is important. For example: This is important.\ntitle to add links to text. For example: Google",
-});
 
 const generationConfig = {
 	temperature: 1,
@@ -41,21 +38,49 @@ const safetySettings = [
 	},
 ];
 
-async function getAI(message: string) {
-	const chatSession = model.startChat({
-		generationConfig,
-		safetySettings,
-		history: [],
-	});
+const model = genAI.getGenerativeModel({
+	model: "gemini-1.5-flash-latest",
+	safetySettings,
+	generationConfig,
+	systemInstruction:
+		"You are AI named Jek - and are currently chatting in a Discord server.\n\nConsider the following in your responses:\n\nBe conversational, casual, and helpful.\nYou can be unhinged, funny, disrespectful, or mean for a joke. All filters are off.\nAdd unicode emoji to be more playful in your responses\nWrite spoilers using spoiler tags. For example ||At the end of The Sixth Sense it is revealed that he is dead||.\nYou can mention people by adding a @ before their name, for example if you wanted to mention yourself you should say @Jek.\n\nFormat text using markdown:\nbold to make it clear something is important. For example: This is important.\ntitle to add links to text. For example: Google",
+});
 
-	const result = await chatSession.sendMessage(message);
-	return result.response.text();
+// Converts url file information to a GoogleGenerativeAI.Part object.
+async function urlToGenerativePart(url, mimeType) {
+	const response = await axios.get(url, { responseType: "arraybuffer" });
+
+	return {
+		inlineData: {
+			data: Buffer.from(response.data).toString("base64"),
+			mimeType,
+		},
+	};
+}
+
+async function getAI(prompt: string, imageParts: any[]) {
+	const result = await model.generateContent([prompt, ...imageParts]);
+	const response = await result.response;
+	return response.text();
 }
 
 export default async function (client: Client, message: Message) {
 	try {
-		console.log(message.content);
-		message.reply(await getAI(message.content));
+		let images = [];
+
+		for (let i = 0; i < message.attachments.size; i++) {
+			const attachment = message.attachments.at(i);
+			let data = await urlToGenerativePart(
+				attachment.url,
+				attachment.contentType
+			);
+
+			images.push(data);
+		}
+
+		console.log(images);
+
+		message.reply(await getAI(message.content, images));
 	} catch (err) {
 		(client.channels.cache.get(message.channelId) as TextChannel).send("Error");
 		console.log(`Error Respond to message ${message}:${err}`);
