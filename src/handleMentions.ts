@@ -66,8 +66,9 @@ async function getAI(prompt: string, imageParts: any[]) {
 
 export default async function (client: Client, message: Message) {
 	try {
-		let images = [];
+		message.channel.sendTyping();
 
+		let images = [];
 		if (message.reference) {
 			let m = await (
 				client.channels.cache.get(message.reference.channelId) as TextChannel
