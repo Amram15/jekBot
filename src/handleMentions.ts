@@ -59,9 +59,13 @@ async function urlToGenerativePart(url, mimeType) {
 }
 
 async function getAI(prompt: string, imageParts: any[]) {
-	const result = await model.generateContent([prompt, ...imageParts]);
+	const filteredPrompt = prompt.replace(/<@1240120990797922315>/g,'');
+
+	const result = await model.generateContent([filteredPrompt, ...imageParts]);
 	const response = await result.response;
-	return response.text();
+
+	const filteredOutput =  response.text().replace(/@Jek/g,'<@1240120990797922315>');
+	return filteredOutput;
 }
 
 export default async function (client: Client, message: Message) {

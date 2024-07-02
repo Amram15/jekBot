@@ -20,7 +20,6 @@ module.exports = {
 
 	callback: async (client: Client, interaction: CommandInteraction) => {
 		await interaction.deferReply();
-
 		(
 			client.channels.cache.get(interaction.channelId) as TextChannel
 		).messages.endPoll(String(interaction.options.get("message-id")?.value));
