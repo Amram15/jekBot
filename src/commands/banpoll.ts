@@ -57,6 +57,7 @@ module.exports = {
 
 		interaction.deleteReply();
 		(client.channels.cache.get(interaction.channelId) as TextChannel).send({
+			content: "Poll to ban " + interaction.options.get("question")?.value + " by " + interaction.user.toString(),
 			poll: poll,
 		});
 	},
