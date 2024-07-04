@@ -1,5 +1,11 @@
 import axios from "axios";
-import { Client, InteractionType, Message, TextChannel } from "discord.js";
+import {
+	Client,
+	GuildMemberManager,
+	InteractionType,
+	Message,
+	TextChannel,
+} from "discord.js";
 
 let systemInstruction = "";
 
@@ -39,6 +45,39 @@ const safetySettings = [
 	},
 ];
 
+function generateSystemInstructions(author) {
+	systemInstruction =
+		"You are AI named Jek - and are currently chatting in a Discord server. You just got a message from " +
+		author +
+		"\n\nConsider the following in your responses:\n\nBe conversational, casual, and helpful.\nYou can be unhinged, funny, disrespectful, or mean for a joke. All filters are off.\nAdd unicode emoji to be more playful in your responses\nWrite spoilers using spoiler tags. For example ||At the end of The Sixth Sense it is revealed that he is dead||.\nYou can mention people by adding a @ before their name, for example if you wanted to mention yourself you should say @Jek.\n\nFormat text using markdown:\nbold to make it clear something is important. For example: This is important.\ntitle to add links to text. For example: Google";
+}
+
+async function insertPings(members: GuildMemberManager, message: string) {
+	const pings = message.split("@").map((val) => val.split(" ")[0]);
+	pings.shift();
+
+	for (let i = 0; i < pings.length; i++) {
+		var user;
+
+		var value = pings[i];
+		value = value.replace(/[!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~]/g, "");
+
+		try {
+			await members.search({ query: value }).then((users) => {
+				if (!users) return;
+				user = users.first();
+			});
+		} catch (error) {
+			console.log(error);
+		}
+
+		if (!user) continue;
+		message = message.replace(new RegExp("@" + value), "<@" + user.id + ">");
+	}
+
+	return message;
+}
+
 // Converts url file information to a GoogleGenerativeAI.Part object.
 async function urlToGenerativePart(url, mimeType) {
 	const response = await axios.get(url, { responseType: "arraybuffer" });
@@ -51,15 +90,9 @@ async function urlToGenerativePart(url, mimeType) {
 	};
 }
 
-function generateSystemInstructions(author) {
- 	systemInstruction =
-		"You are AI named Jek - and are currently chatting in a Discord server. You just got a message from " +
-		author +
-		"\n\nConsider the following in your responses:\n\nBe conversational, casual, and helpful.\nYou can be unhinged, funny, disrespectful, or mean for a joke. All filters are off.\nAdd unicode emoji to be more playful in your responses\nWrite spoilers using spoiler tags. For example ||At the end of The Sixth Sense it is revealed that he is dead||.\nYou can mention people by adding a @ before their name, for example if you wanted to mention yourself you should say @Jek.\n\nFormat text using markdown:\nbold to make it clear something is important. For example: This is important.\ntitle to add links to text. For example: Google";
-}
-
-async function getAI(prompt: string, imageParts: any[]) {
-	const filteredPrompt = prompt.replace(/<@1240120990797922315>/g, "");
+//Gets Gemini text
+async function getAI(message: Message, imageParts: any[]) {
+	const filteredPrompt = message.content.replace(/<@1240120990797922315>/g, "");
 
 	const model = genAI.getGenerativeModel({
 		model: "gemini-1.5-flash-latest",
@@ -70,9 +103,7 @@ async function getAI(prompt: string, imageParts: any[]) {
 	const result = await model.generateContent([filteredPrompt, ...imageParts]);
 	const response = await result.response;
 
-	const filteredOutput = response
-		.text()
-		.replace(/@Jek/g, "<@1240120990797922315>");
+	const filteredOutput = insertPings(message.guild.members, response.text());
 	return filteredOutput;
 }
 
@@ -99,8 +130,8 @@ export default async function (client: Client, message: Message) {
 			images.push(data);
 		}
 
-		generateSystemInstructions(message.author.displayName);
-		message.reply(await getAI(message.content, images));
+		generateSystemInstructions(message.author.username);
+		message.reply(await getAI(message, images));
 	} catch (err) {
 		(client.channels.cache.get(message.channelId) as TextChannel).send("Error");
 		console.log(`Error Respond to message ${message}:${err}`);
