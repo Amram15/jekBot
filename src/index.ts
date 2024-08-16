@@ -4,6 +4,7 @@ import setupCommands from "./setupCommands";
 import handleCommands from "./handleCommands";
 import handleMentions from "./handleMentions";
 import { Console } from "console";
+import handleVotes from "./handleVotes";
 
 const client = new Client({
 	intents: [
@@ -28,6 +29,14 @@ client.on("interactionCreate", async (interaction) => {
 		}
 
 		handleCommands(client, interaction);
+	} else if (interaction.isModalSubmit() || interaction.isButton()) {
+		if (interaction.guildId != process.env.Guild) {
+			console.log(`Invalid Server!`);
+			await interaction.reply("Invalid Server");
+			return;
+		}
+
+		handleVotes(client, interaction);
 	}
 });
 

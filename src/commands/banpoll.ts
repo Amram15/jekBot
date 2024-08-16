@@ -44,7 +44,7 @@ module.exports = {
 			),
 			allowMultiselect: Boolean(
 				interaction.options.get("multi-choice")
-					? interaction.options.get("multi-choice")?.value
+					? interaction.options.get("multi-choice").value
 					: true
 			),
 			answers: [
@@ -57,7 +57,11 @@ module.exports = {
 
 		interaction.deleteReply();
 		(client.channels.cache.get(interaction.channelId) as TextChannel).send({
-			content: "Poll to ban " + interaction.options.get("question")?.value + " by " + interaction.user.toString(),
+			content:
+				"Poll to ban " +
+				interaction.options.get("question")?.value +
+				" by " +
+				interaction.user.toString(),
 			poll: poll,
 		});
 	},
