@@ -10,12 +10,7 @@ import {
 import { getFirestore, collection, doc, setDoc } from "firebase/firestore";
 import { initFirebase } from "../firebase/firebaseapp";
 
-const DEFAULT_OPTIONS = [
-	"0️⃣ Banned",
-	"1️⃣ Limited",
-	"2️⃣ Semi-Limited",
-	"3️⃣ Unlimited",
-];
+const DEFAULT_OPTIONS = ["Banned", "Limited", "Semi-Limited", "Unlimited"];
 
 const app = initFirebase();
 const fireStore = getFirestore(app);
@@ -70,11 +65,14 @@ module.exports = {
 		const pollEmbed = new EmbedBuilder()
 			.setColor(0x0099ff)
 			.setTitle(question)
-			.addFields({ name: "\u200B", value: 'Click "Vote" to vote' })
+			.addFields({ name: "\u200B", value: "Results:" })
 			.setFooter({
 				text: interaction.user.displayName,
 				iconURL: interaction.user.displayAvatarURL(),
 			})
+			// .setImage(
+			// 	"https://letsenhance.io/static/73136da51c245e80edc6ccfe44888a99/1015f/MainBefore.jpg"
+			// )
 			.setTimestamp();
 		//Update Message
 		const message = await interaction.editReply({

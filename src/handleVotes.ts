@@ -64,10 +64,13 @@ export default async function (
 			const docRef = doc(polls, interaction.message.id);
 			const voteData = (await getDoc(docRef)).data();
 
+			const prevData = voteData.Votes[interaction.user.id];
+			console.log(prevData);
+
 			//Create Modal
 			const modal = new ModalBuilder()
 				.setCustomId("JekVoteModal")
-				.setTitle(voteData.Question);
+				.setTitle((prevData ? "(Edit) " : "") + voteData.Question);
 
 			for (let i = 0; i < voteData.Options.length; i++) {
 				const textInput = new TextInputBuilder()
@@ -76,7 +79,7 @@ export default async function (
 					.setStyle(TextInputStyle.Short)
 					.setMaxLength(String(voteData.Options.length).length)
 					.setMinLength(String(voteData.Options.length).length)
-					.setPlaceholder("");
+					.setPlaceholder(String(prevData ? prevData.indexOf(i) + 1 : ""));
 				const actionRow =
 					new ActionRowBuilder<TextInputBuilder>().addComponents(textInput);
 				modal.addComponents(actionRow);
@@ -122,15 +125,25 @@ export default async function (
 
 			//Update Firestore doc
 			const docRef = doc(polls, interaction.message.id);
+			const optionsData = (await getDoc(docRef)).get("Options");
+
+			console.log(optionsData);
 			await updateDoc(docRef, userVote);
 
 			const successEmbed = new EmbedBuilder()
 				.setColor(0x00ff00)
 				.setTitle("Saved vote answers")
-				.setDescription(validation.Response)
+				.setDescription("Ranked vote data:\n\u200B")
 				.setTimestamp();
 
-			interaction.followUp({ content: "Test Reply", ephemeral: true });
+			for (let i = 0; i < answers.length; i++) {
+				successEmbed.addFields({
+					name: String(i + 1) + ":",
+					value: optionsData[Number(answers[i].customId)],
+				});
+			}
+
+			interaction.followUp({ embeds: [successEmbed], ephemeral: true });
 		}
 	} catch (err) {
 		interaction.editReply("error");
