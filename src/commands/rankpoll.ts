@@ -2,13 +2,10 @@ import {
 	Client,
 	CommandInteraction,
 	ApplicationCommandOptionType,
-	ActionRowBuilder,
-	ButtonBuilder,
-	ButtonStyle,
-	EmbedBuilder,
 } from "discord.js";
 import { getFirestore, collection, doc, setDoc } from "firebase/firestore";
 import { initFirebase } from "../firebase/firebaseapp";
+import updateVote from "../RankedVote/updateVote";
 
 const DEFAULT_OPTIONS = ["Banned", "Limited", "Semi-Limited", "Unlimited"];
 
@@ -53,36 +50,26 @@ module.exports = {
 			? convertOptions(String(interaction.options.get("options").value))
 			: DEFAULT_OPTIONS;
 
-		//Vote button
-		const vote = new ButtonBuilder()
-			.setCustomId("JekRankVote")
-			.setLabel("Vote")
-			.setStyle(ButtonStyle.Primary);
-		vote.setEmoji("🗳️");
-		const row = new ActionRowBuilder<ButtonBuilder>().addComponents(vote);
-
-		//Poll Embed
-		const pollEmbed = new EmbedBuilder()
-			.setColor(0x0099ff)
-			.setTitle(question)
-			.addFields({ name: "\u200B", value: "Results:" })
-			.setFooter({
-				text: interaction.user.displayName,
-				iconURL: interaction.user.displayAvatarURL(),
-			})
-			// .setImage(
-			// 	"https://letsenhance.io/static/73136da51c245e80edc6ccfe44888a99/1015f/MainBefore.jpg"
-			// )
-			.setTimestamp();
 		//Update Message
 		const message = await interaction.editReply({
-			embeds: [pollEmbed],
-			components: [row],
+			content: "Creating Poll",
 		});
 
 		//Firebase Datastore Save Data
 		const docRef = doc(polls, message.id);
-		await setDoc(docRef, { Question: question, Votes: {}, Options: options });
-		console.log("Poll Document written with custom ID: ", docRef.id);
+		await setDoc(docRef, {
+			ChannelID: message.channel.id,
+			Question: question,
+			Author: {
+				ID: interaction.user.id,
+				Name: interaction.user.displayName,
+				AvatarURL: interaction.user.displayAvatarURL(),
+			},
+			Votes: {},
+			Options: options,
+		});
+
+		//Create Embed and stuff
+		updateVote(client, message.id);
 	},
 };

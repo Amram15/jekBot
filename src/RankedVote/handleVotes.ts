@@ -1,14 +1,17 @@
 import {
 	ActionRowBuilder,
+	ButtonBuilder,
 	ButtonInteraction,
+	ButtonStyle,
 	Client,
 	EmbedBuilder,
 	ModalBuilder,
 	ModalSubmitInteraction,
+	TextChannel,
 	TextInputBuilder,
 	TextInputStyle,
 } from "discord.js";
-import { initFirebase } from "./firebase/firebaseapp";
+import { initFirebase } from "../firebase/firebaseapp";
 import {
 	collection,
 	doc,
@@ -16,12 +19,14 @@ import {
 	getFirestore,
 	updateDoc,
 } from "firebase/firestore";
+import updateVote from "./updateVote";
 
 //Get Firestore
 const app = initFirebase();
 const fireStore = getFirestore(app);
 const polls = collection(fireStore, "Polls");
 
+//Check Valid Answer numbers
 function validateAnswers(answers) {
 	const seen = {};
 
@@ -51,6 +56,7 @@ function validateAnswers(answers) {
 	return { Success: true, Response: "" };
 }
 
+//Default
 export default async function (
 	client: Client,
 	interaction: ModalSubmitInteraction | ButtonInteraction
@@ -65,7 +71,6 @@ export default async function (
 			const voteData = (await getDoc(docRef)).data();
 
 			const prevData = voteData.Votes[interaction.user.id];
-			console.log(prevData);
 
 			//Create Modal
 			const modal = new ModalBuilder()
@@ -116,7 +121,6 @@ export default async function (
 
 			//Get Vote Answers
 			answers.sort((a, b) => Number(a.value) - Number(b.value));
-			console.log(answers);
 
 			const userVote = {};
 			userVote["Votes." + String(interaction.user.id)] = answers.map((answer) =>
@@ -127,7 +131,6 @@ export default async function (
 			const docRef = doc(polls, interaction.message.id);
 			const optionsData = (await getDoc(docRef)).get("Options");
 
-			console.log(optionsData);
 			await updateDoc(docRef, userVote);
 
 			const successEmbed = new EmbedBuilder()
@@ -143,6 +146,7 @@ export default async function (
 				});
 			}
 
+			updateVote(client, interaction.message.id);
 			interaction.followUp({ embeds: [successEmbed], ephemeral: true });
 		}
 	} catch (err) {
