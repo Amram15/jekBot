@@ -1,10 +1,16 @@
 import "dotenv/config";
-import { Client, CommandInteraction, IntentsBitField } from "discord.js";
+import {
+	Client,
+	CommandInteraction,
+	IntentsBitField,
+	InteractionResponse,
+} from "discord.js";
 import setupCommands from "./setupCommands";
 import handleCommands from "./handleCommands";
 import handleMentions from "./handleMentions";
 import { Console } from "console";
 import handleVotes from "./RankedVote/handleVotes";
+import handleTrade from "./TradeManager/handleTrade";
 
 const client = new Client({
 	intents: [
@@ -37,6 +43,7 @@ client.on("interactionCreate", async (interaction) => {
 		}
 
 		handleVotes(client, interaction);
+		handleTrade(client, interaction);
 	}
 });
 

@@ -2,27 +2,24 @@ import axios from "axios";
 import {
 	Client,
 	GuildMemberManager,
-	InteractionType,
 	Message,
 	TextChannel,
 } from "discord.js";
-
-let systemInstruction = "";
-
-const {
+import {
 	GoogleGenerativeAI,
 	HarmCategory,
 	HarmBlockThreshold,
-} = require("@google/generative-ai");
+} from "@google/generative-ai";
+//import { GoogleAICacheManager } from "@google/generative-ai/dist/server/server";
 
-const apiKey = process.env.GEMINI;
-const genAI = new GoogleGenerativeAI(apiKey);
+const genAI = new GoogleGenerativeAI( process.env.GEMINI);
+//const cacheManager = new GoogleAICacheManager(process.env.GEMINI);
 
 const generationConfig = {
 	temperature: 1,
 	topP: 0.95,
 	topK: 64,
-	maxOutputTokens: 5000,
+	maxOutputTokens: 8192,
 	responseMimeType: "text/plain",
 };
 
@@ -44,6 +41,13 @@ const safetySettings = [
 		threshold: HarmBlockThreshold.BLOCK_NONE,
 	},
 ];
+const model = 'models/gemini-1.5-flash-001';
+
+let systemInstruction = "";
+
+async function generateCache(){
+//const cache = await cacheManager.create();
+}
 
 function generateSystemInstructions(author) {
 	systemInstruction =
@@ -95,7 +99,7 @@ async function getAI(message: Message, imageParts: any[]) {
 	const filteredPrompt = message.content.replace(/<@1240120990797922315>/g, "");
 
 	const model = genAI.getGenerativeModel({
-		model: "gemini-1.5-flash-latest",
+		model: "gemini-1.5-flash-001",
 		safetySettings,
 		generationConfig,
 		systemInstruction: systemInstruction,
@@ -109,6 +113,7 @@ async function getAI(message: Message, imageParts: any[]) {
 
 export default async function (client: Client, message: Message) {
 	try {
+		// @ts-ignore: Unreachable code error
 		message.channel.sendTyping();
 
 		let images = [];

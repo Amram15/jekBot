@@ -1,23 +1,23 @@
 {
 	"dependencies": {
-		"@google/generative-ai": "^0.11.2",
-		"axios": "^1.6.8",
+		"@google/generative-ai": "^0.21.0",
+		"axios": "^1.7.7",
 		"d3": "^7.9.0",
 		"d3-sankey": "^0.12.3",
-		"discord.js": "^14.15.2",
+		"discord.js": "^14.16.3",
 		"dotenv": "^16.4.5",
-		"firebase": "^10.12.5",
-		"jsdom": "^24.1.1",
-		"sharp": "^0.33.4"
+		"firebase": "^10.14.0",
+		"jsdom": "^25.0.1",
+		"sharp": "^0.33.5"
 	},
 	"name": "progressonautomator",
 	"version": "1.0.0",
 	"description": "A simple discord bot",
 	"main": "index.js",
 	"devDependencies": {
-		"@types/node": "^20.8.10",
-		"tsx": "^3.14.0",
-		"typescript": "^5.4.5"
+		"@types/node": "^20.16.10",
+		"tsx": "^4.19.1",
+		"typescript": "^5.6.2"
 	},
 	"scripts": {
 		"dev": "tsx watch src/index.ts",
