@@ -82,14 +82,12 @@ module.exports = {
 			TradeDesc: tradeDesc,
 			Trader1: {
 				ID: trader1.id,
-				UserName: trader1.username,
 				Name: trader1.displayName,
 				TradeContent: copies1,
 				Accepted: 0,
 			},
 			Trader2: {
 				ID: trader2.id,
-				UserName: trader2.username,
 				Name: trader2.displayName,
 				TradeContent: copies2,
 				Accepted: 0,

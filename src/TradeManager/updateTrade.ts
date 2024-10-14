@@ -86,16 +86,16 @@ export default async function (client: Client, tradeID: string) {
 			acceptColor(tradeData.Trader1.Accepted, tradeData.Trader2.Accepted)
 		)
 		.setTitle(
-			accepted(tradeData.Trader1.Accepted, tradeData.Trader1.Accepted) +
+			accepted(tradeData.Trader1.Accepted, tradeData.Trader2.Accepted) +
 				"Trade Between " +
-				tradeData.Trader1.UserName +
-				" | " +
-				tradeData.Trader2.UserName
+				tradeData.Trader1.Name +
+				" & " +
+				tradeData.Trader2.Name
 		)
 		.setDescription(tradeData.TradeDesc + "\n\u200B")
 		.addFields({
-			name: tradeData.Trader1.Name,
-			value: acceptedNum(tradeData.Trader1.Accepted),
+			name: acceptedNum(tradeData.Trader1.Accepted),
+			value: "<@" + tradeData.Trader1.ID + ">",
 			inline: true,
 		})
 		.addFields({
@@ -110,8 +110,8 @@ export default async function (client: Client, tradeID: string) {
 		})
 
 		.addFields({
-			name: tradeData.Trader2.Name,
-			value: acceptedNum(tradeData.Trader2.Accepted),
+			name: acceptedNum(tradeData.Trader2.Accepted),
+			value: "<@" + tradeData.Trader2.ID + ">",
 			inline: true,
 		})
 		.addFields({
@@ -138,6 +138,8 @@ export default async function (client: Client, tradeID: string) {
 		.fetch(tradeID)
 		.then(function (message) {
 			message.edit({
+				content:
+					"<@" + tradeData.Trader1.ID + "> <@" + tradeData.Trader2.ID + ">",
 				embeds: [pollEmbed],
 				components: component,
 			});
