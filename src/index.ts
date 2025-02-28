@@ -2,6 +2,7 @@ import "dotenv/config";
 import {
 	Client,
 	CommandInteraction,
+	Guild,
 	IntentsBitField,
 	InteractionResponse,
 } from "discord.js";
@@ -12,7 +13,8 @@ import { Console } from "console";
 import handleVotes from "./RankedVote/handleVotes";
 import handleTrade from "./TradeManager/handleTrade";
 
-const GUILD = process.env.Guild
+const GUILD = process.env.Guild;
+console.log(GUILD);
 
 const client = new Client({
 	intents: [
