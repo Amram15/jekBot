@@ -87,7 +87,7 @@ export default async function (client: Client, tradeID: string) {
 		)
 		.setTitle(
 			accepted(tradeData.Trader1.Accepted, tradeData.Trader2.Accepted) +
-				"Trade Between " +
+				"Trade between " +
 				tradeData.Trader1.Name +
 				" & " +
 				tradeData.Trader2.Name
