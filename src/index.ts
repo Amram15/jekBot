@@ -12,7 +12,7 @@ import { Console } from "console";
 import handleVotes from "./RankedVote/handleVotes";
 import handleTrade from "./TradeManager/handleTrade";
 
-console.log(process.env)
+const GUILD = process.env.Guild
 
 const client = new Client({
 	intents: [
@@ -30,16 +30,16 @@ client.on("ready", (c) => {
 
 client.on("interactionCreate", async (interaction) => {
 	if (interaction.isChatInputCommand()) {
-		if (interaction.guildId != process.env.Guild) {
-			console.log("Invalid Server!" + process.env.Guild);
+		if (interaction.guildId != GUILD) {
+			console.log("Invalid Server!");
 			await interaction.reply("Invalid Server");
 			return;
 		}
 
 		handleCommands(client, interaction);
 	} else if (interaction.isModalSubmit() || interaction.isButton()) {
-		if (interaction.guildId != process.env.Guild) {
-			console.log("Invalid Server!" + process.env.Guild);
+		if (interaction.guildId != GUILD) {
+			console.log("Invalid Server!");
 			await interaction.reply("Invalid Server");
 			return;
 		}
@@ -52,8 +52,8 @@ client.on("interactionCreate", async (interaction) => {
 client.on("messageCreate", async (message) => {
 	if (!message.mentions.users.first()) return;
 	if (message.mentions.users.first().id == client.user.id) {
-		if (message.guildId != process.env.Guild) {
-			console.log("Invalid Server!" + process.env.Guild);
+		if (message.guildId != GUILD) {
+			console.log("Invalid Server!");
 			await message.reply("Invalid Server");
 			return;
 		}
