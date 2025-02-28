@@ -2,7 +2,6 @@ import "dotenv/config";
 import {
 	Client,
 	CommandInteraction,
-	Guild,
 	IntentsBitField,
 	InteractionResponse,
 } from "discord.js";
@@ -13,8 +12,7 @@ import { Console } from "console";
 import handleVotes from "./RankedVote/handleVotes";
 import handleTrade from "./TradeManager/handleTrade";
 
-const GUILD = process.env.Guild;
-console.log(GUILD);
+console.log(process.env)
 
 const client = new Client({
 	intents: [
@@ -32,16 +30,16 @@ client.on("ready", (c) => {
 
 client.on("interactionCreate", async (interaction) => {
 	if (interaction.isChatInputCommand()) {
-		if (interaction.guildId != GUILD) {
-			console.log("Invalid Server!");
+		if (interaction.guildId != process.env.Guild) {
+			console.log("Invalid Server!" + process.env.Guild);
 			await interaction.reply("Invalid Server");
 			return;
 		}
 
 		handleCommands(client, interaction);
 	} else if (interaction.isModalSubmit() || interaction.isButton()) {
-		if (interaction.guildId != GUILD) {
-			console.log("Invalid Server!");
+		if (interaction.guildId != process.env.Guild) {
+			console.log("Invalid Server!" + process.env.Guild);
 			await interaction.reply("Invalid Server");
 			return;
 		}
@@ -54,8 +52,8 @@ client.on("interactionCreate", async (interaction) => {
 client.on("messageCreate", async (message) => {
 	if (!message.mentions.users.first()) return;
 	if (message.mentions.users.first().id == client.user.id) {
-		if (message.guildId != GUILD) {
-			console.log("Invalid Server!");
+		if (message.guildId != process.env.Guild) {
+			console.log("Invalid Server!" + process.env.Guild);
 			await message.reply("Invalid Server");
 			return;
 		}
