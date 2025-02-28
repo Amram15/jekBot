@@ -52,7 +52,7 @@ client.on("interactionCreate", async (interaction) => {
 client.on("messageCreate", async (message) => {
 	if (!message.mentions.users.first()) return;
 	if (message.mentions.users.first().id == client.user.id) {
-		if (message.guildId != process.env.Guild) {
+		if (message.guildId != process.env.GUILD) {
 			console.log("Invalid Server!" + process.env.GUILD);
 			await message.reply("Invalid Server");
 			return;
