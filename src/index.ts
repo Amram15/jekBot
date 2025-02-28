@@ -29,7 +29,7 @@ client.on("ready", (c) => {
 client.on("interactionCreate", async (interaction) => {
 	if (interaction.isChatInputCommand()) {
 		if (interaction.guildId != process.env.Guild) {
-			console.log(`Invalid Server!`);
+			console.log("Invalid Server!" + interaction.guildId);
 			await interaction.reply("Invalid Server");
 			return;
 		}
@@ -37,7 +37,7 @@ client.on("interactionCreate", async (interaction) => {
 		handleCommands(client, interaction);
 	} else if (interaction.isModalSubmit() || interaction.isButton()) {
 		if (interaction.guildId != process.env.Guild) {
-			console.log(`Invalid Server!`);
+			console.log("Invalid Server!" + interaction.guildId);
 			await interaction.reply("Invalid Server");
 			return;
 		}
@@ -51,7 +51,7 @@ client.on("messageCreate", async (message) => {
 	if (!message.mentions.users.first()) return;
 	if (message.mentions.users.first().id == client.user.id) {
 		if (message.guildId != process.env.Guild) {
-			console.log(`Invalid Server!`);
+			console.log("Invalid Server!" + message.guildId);
 			await message.reply("Invalid Server");
 			return;
 		}
