@@ -1,19 +1,12 @@
 import axios from "axios";
-import {
-	Client,
-	GuildMemberManager,
-	Message,
-	TextChannel,
-} from "discord.js";
+import { Client, GuildMemberManager, Message, TextChannel } from "discord.js";
 import {
 	GoogleGenerativeAI,
 	HarmCategory,
 	HarmBlockThreshold,
 } from "@google/generative-ai";
-//import { GoogleAICacheManager } from "@google/generative-ai/dist/server/server";
 
-const genAI = new GoogleGenerativeAI( process.env.GEMINI);
-//const cacheManager = new GoogleAICacheManager(process.env.GEMINI);
+const genAI = new GoogleGenerativeAI(process.env.GEMINI);
 
 const generationConfig = {
 	temperature: 1,
@@ -41,13 +34,8 @@ const safetySettings = [
 		threshold: HarmBlockThreshold.BLOCK_NONE,
 	},
 ];
-const model = 'models/gemini-1.5-flash-001';
 
 let systemInstruction = "";
-
-async function generateCache(){
-//const cache = await cacheManager.create();
-}
 
 function generateSystemInstructions(author) {
 	systemInstruction =
@@ -99,7 +87,7 @@ async function getAI(message: Message, imageParts: any[]) {
 	const filteredPrompt = message.content.replace(/<@1240120990797922315>/g, "");
 
 	const model = genAI.getGenerativeModel({
-		model: "gemini-1.5-flash-001",
+		model: "gemini-2.0-flash",
 		safetySettings,
 		generationConfig,
 		systemInstruction: systemInstruction,

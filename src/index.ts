@@ -12,8 +12,6 @@ import { Console } from "console";
 import handleVotes from "./RankedVote/handleVotes";
 import handleTrade from "./TradeManager/handleTrade";
 
-console.log(process.env)
-
 const client = new Client({
 	intents: [
 		IntentsBitField.Flags.Guilds,
