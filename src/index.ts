@@ -53,7 +53,7 @@ client.on("messageCreate", async (message) => {
 	if (!message.mentions.users.first()) return;
 	if (message.mentions.users.first().id == client.user.id) {
 		if (message.guildId != process.env.Guild) {
-			console.log("Invalid Server!" + process.env.Guild);
+			console.log("Invalid Server!" + process.env.GUILD);
 			await message.reply("Invalid Server");
 			return;
 		}
