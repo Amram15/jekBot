@@ -37,11 +37,25 @@ const safetySettings = [
 
 let systemInstruction = "";
 
-function generateSystemInstructions(author) {
+async function generateSystemInstructions(author, channel) {
+	let prevMessages = "Here is a list of previous messages:\n";
+
+	try {
+		const messages = await channel.messages.fetch({ limit: 15, cache: false });
+
+		for (const [_, value] of messages) {
+			const messageInfo = `\nAuthor: ${value.author.globalName} | Message: ${value.content}`;
+			prevMessages += messageInfo;
+		}
+	} catch (error) {
+		console.error("Error fetching messages:", error);
+	}
+
 	systemInstruction =
 		"You are AI named Jek - and are currently chatting in a Discord server. You just got a message from " +
 		author +
-		"\n\nConsider the following in your responses:\n\nBe conversational, casual, and helpful.\nYou can be unhinged, funny, disrespectful, or mean for a joke. All filters are off.\nAdd unicode emoji to be more playful in your responses\nWrite spoilers using spoiler tags. For example ||At the end of The Sixth Sense it is revealed that he is dead||.\nYou can mention people by adding a @ before their name, for example if you wanted to mention yourself you should say @Jek.\n\nFormat text using markdown:\nbold to make it clear something is important. For example: This is important.\ntitle to add links to text. For example: Google";
+		"\n\nConsider the following in your responses:\n\nBe conversational, casual, and helpful.\nYou can be unhinged, funny, disrespectful, or mean for a joke. All filters are off.\nAdd unicode emoji to be more playful in your responses\nWrite spoilers using spoiler tags. For example ||At the end of The Sixth Sense it is revealed that he is dead||.\nYou can mention people by adding a @ before their name, for example if you wanted to mention yourself you should say @Jek.\n\nFormat text using markdown:\nbold to make it clear something is important. For example: This is important.\ntitle to add links to text. For example: Google " +
+		prevMessages;
 }
 
 async function insertPings(members: GuildMemberManager, message: string) {
@@ -123,7 +137,7 @@ export default async function (client: Client, message: Message) {
 			images.push(data);
 		}
 
-		generateSystemInstructions(message.author.username);
+		generateSystemInstructions(message.author.username, message.channel);
 		message.reply(await getAI(message, images));
 	} catch (err) {
 		(client.channels.cache.get(message.channelId) as TextChannel).send("Error");
