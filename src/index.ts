@@ -30,16 +30,16 @@ client.on("ready", (c) => {
 
 client.on("interactionCreate", async (interaction) => {
 	if (interaction.isChatInputCommand()) {
-		if (interaction.guildId != process.env.Guild) {
-			console.log("Invalid Server!" + process.env.Guild);
+		if (interaction.guildId != process.env.GUILD) {
+			console.log("Invalid Server!" + process.env.GUILD);
 			await interaction.reply("Invalid Server");
 			return;
 		}
 
 		handleCommands(client, interaction);
 	} else if (interaction.isModalSubmit() || interaction.isButton()) {
-		if (interaction.guildId != process.env.Guild) {
-			console.log("Invalid Server!" + process.env.Guild);
+		if (interaction.guildId != process.env.GUILD) {
+			console.log("Invalid Server!" + process.env.GUILD);
 			await interaction.reply("Invalid Server");
 			return;
 		}
