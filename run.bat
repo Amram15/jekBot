@@ -17,3 +17,4 @@ echo %GREEN%Cleaning up Docker system...
 docker system prune -a -f
 
 echo %GREEN%Done!
+pause
