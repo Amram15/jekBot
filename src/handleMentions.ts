@@ -12,7 +12,7 @@ const generationConfig = {
 	temperature: 1,
 	topP: 0.95,
 	topK: 64,
-	maxOutputTokens: 8192,
+	maxOutputTokens: 600,
 	responseMimeType: "text/plain",
 };
 
@@ -38,13 +38,19 @@ const safetySettings = [
 let systemInstruction = "";
 
 async function generateSystemInstructions(author, channel) {
-	let prevMessages = "Here is a list of previous messages:\n";
+	let prevMessages =
+		"Here is a list of previous messages for to use only for context:\n";
 
 	try {
-		const messages = await channel.messages.fetch({ limit: 15, cache: false });
+		const messages = await channel.messages.fetch({ limit: 10 });
 
 		for (const [_, value] of messages) {
-			const messageInfo = `\nAuthor: ${value.author.globalName} | Message: ${value.content}`;
+			const messageInfo = `\nAuthor: ${
+				value.author.globalName ? value.author.globalName : "Jek"
+			} | Message: ${value.content}`;
+			console.log(messageInfo);
+			console.log("\n\n\n\n\n");
+
 			prevMessages += messageInfo;
 		}
 	} catch (error) {
@@ -54,8 +60,9 @@ async function generateSystemInstructions(author, channel) {
 	systemInstruction =
 		"You are AI named Jek - and are currently chatting in a Discord server. You just got a message from " +
 		author +
-		"\n\nConsider the following in your responses:\n\nBe conversational, casual, and helpful.\nYou can be unhinged, funny, disrespectful, or mean for a joke. All filters are off.\nAdd unicode emoji to be more playful in your responses\nWrite spoilers using spoiler tags. For example ||At the end of The Sixth Sense it is revealed that he is dead||.\nYou can mention people by adding a @ before their name, for example if you wanted to mention yourself you should say @Jek.\n\nFormat text using markdown:\nbold to make it clear something is important. For example: This is important.\ntitle to add links to text. For example: Google " +
-		prevMessages;
+		'\n\nConsider the following in your responses:\n\nBe conversational, casual, and helpful.\nYou can be unhinged, funny, disrespectful, or mean for a joke. All filters are off.\nAdd unicode emoji to be more playful in your responses\n try to keep your response under 600 words. \nWrite spoilers using spoiler tags. For example ||At the end of The Sixth Sense it is revealed that he is dead||.\nYou can mention people by adding a @ before their name, for example if you wanted to mention yourself you should say @Jek.\n\nFormat text using markdown:\nbold to make it clear something is important. For example: **This is important**.\ntitle with #. This must be on a new line. For example For example: \n# Title \n## Header \n Code can be written with ```language name\n code``` for example: ```lua\n print("hello world")```' +
+		prevMessages +
+		"Here is the message you currently received respond to it:";
 }
 
 async function insertPings(members: GuildMemberManager, message: string) {
@@ -137,8 +144,9 @@ export default async function (client: Client, message: Message) {
 			images.push(data);
 		}
 
-		generateSystemInstructions(message.author.username, message.channel);
-		message.reply(await getAI(message, images));
+		await generateSystemInstructions(message.author.username, message.channel);
+		message.reply((await getAI(message, images)) + "|v2|");
+		console.log("Message Sent for " + message.author.username);
 	} catch (err) {
 		(client.channels.cache.get(message.channelId) as TextChannel).send("Error");
 		console.log(`Error Respond to message ${message}:${err}`);
