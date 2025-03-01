@@ -145,7 +145,7 @@ export default async function (client: Client, message: Message) {
 		}
 
 		await generateSystemInstructions(message.author.username, message.channel);
-		message.reply((await getAI(message, images)) + "|v2|");
+		message.reply(await getAI(message, images));
 		console.log("Message Sent for " + message.author.username);
 	} catch (err) {
 		(client.channels.cache.get(message.channelId) as TextChannel).send("Error");
