@@ -26,7 +26,7 @@ async function get_random_cardID(deck_reference) {
 
 	// console.log({id: random_id, data: database_data[random_id]})
 
-    return {id: random_cardID, data: deck_database[random_cardID]};
+    return random_cardID;
 }
 
 async function generate_random_deck(deck_reference, total_deck_size) {
@@ -45,7 +45,7 @@ async function generate_random_deck(deck_reference, total_deck_size) {
 
         used_cardIDs.add(random_cardID);
 
-        let quantity = Math.floor(Math.random() * (3 - 1) + 1); //get random number from 1-3
+        let quantity = Math.floor((Math.random() * (3 - 1)) + 1); //get random number from 1-3
 
         if (current_deck_array.length + quantity > total_deck_size) { //lower quantity so that it doesn't exceed final_deck_size
             quantity = current_deck_array.length + quantity - total_deck_size;
@@ -59,27 +59,25 @@ async function generate_random_deck(deck_reference, total_deck_size) {
     return current_deck_array;
 }
 
-async function generate_random_ydke(user_main_deck_size, user_extra_deck_size) {
+async function generate_random_ydke(user_main_deck_size = 40, user_extra_deck_size = 15) {
 	user_main_deck_size = user_main_deck_size || 40;
 	user_extra_deck_size = user_extra_deck_size || 15;
 
     const main_deck = await generate_random_deck(main_deck_doc, user_main_deck_size);
-	const main_deck_ids = main_deck.map(card => Number(card.id));
     const extra_deck = await generate_random_deck(extra_deck_doc, user_extra_deck_size);
-	const extra_deck_ids = extra_deck.map(card => Number(card.id));
 
 	// console.log("main deck:", main_deck_ids);
 	// console.log("extra deck:", extra_deck_ids);
-	console.log(user_main_deck_size);
-	console.log(user_extra_deck_size);
+	// console.log(user_main_deck_size);
+	// console.log(user_extra_deck_size);
 
     const deck_code = ydke.toURL({
-        main: Uint32Array.from(main_deck_ids),
-        extra: Uint32Array.from(extra_deck_ids),
+        main: Uint32Array.from(main_deck),
+        extra: Uint32Array.from(extra_deck),
         side: Uint32Array.from([]),
     });
 
-	console.log(deck_code);
+	// console.log(deck_code);
 
 	return deck_code
 }
