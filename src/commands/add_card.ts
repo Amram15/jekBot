@@ -22,11 +22,20 @@ const extra_deck_types = new Set([
 	"XYZ Pendulum Effect Monster"
 ])
 
-async function add_card(id: number) {
+async function add_card(user_string: string) {
+    // console.log(user_string);
+    let valid_url;
+
+    if (Number.isNaN(Number(user_string))){
+        valid_url = `https://db.ygoprodeck.com/api/v7/cardinfo.php?name=${user_string}`
+    } else {
+        valid_url = `https://db.ygoprodeck.com/api/v7/cardinfo.php?id=${user_string}`
+    }
+    
     let config = {
         method: "get",
         maxBodyLength: Infinity,
-        url: `https://db.ygoprodeck.com/api/v7/cardinfo.php?id=${id}`,
+        url: valid_url,
         headers: {},
     };
 
@@ -47,7 +56,7 @@ async function add_card(id: number) {
         return { success: false, error: api_error };
     }
 
-    // console.log(card_data);
+    console.log(card_data);
 
     const stored_data = {
         name: card_data.name,
@@ -57,11 +66,11 @@ async function add_card(id: number) {
     
     if (extra_deck_types.has(card_data.type)){
         await updateDoc(extra_deck, {
-            [id]: stored_data,
+            [user_string]: stored_data,
         });
     } else{
         await updateDoc(main_deck, {
-            [id]: stored_data,
+            [user_string]: stored_data,
         });
     }
 
@@ -73,9 +82,9 @@ module.exports = {
     description: "Adds a card to the cube",
     options: [
         {
-            name: "id",
+            name: "name_or_id",
             description: "Card ID",
-            type: ApplicationCommandOptionType.Integer,
+            type: ApplicationCommandOptionType.String,
             required: true,
         },
     ],
@@ -90,7 +99,7 @@ module.exports = {
             return;
         }
 
-        const api_response = await add_card(Number(interaction.options.get("id")?.value));
+        const api_response = await add_card(String(interaction.options.get("name_or_id")?.value));
 
         const embed = new EmbedBuilder()
             .setTitle(api_response.success ? "Card added!" : "Error")
