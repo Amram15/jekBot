@@ -31,7 +31,7 @@ async function add_card(user_string: string) {
     } else {
         valid_url = `https://db.ygoprodeck.com/api/v7/cardinfo.php?id=${user_string}`
     }
-    
+
     let config = {
         method: "get",
         maxBodyLength: Infinity,
@@ -56,7 +56,7 @@ async function add_card(user_string: string) {
         return { success: false, error: api_error };
     }
 
-    console.log(card_data);
+    // console.log(card_data);
 
     const stored_data = {
         name: card_data.name,
@@ -66,11 +66,11 @@ async function add_card(user_string: string) {
     
     if (extra_deck_types.has(card_data.type)){
         await updateDoc(extra_deck, {
-            [user_string]: stored_data,
+            [card_data.id]: stored_data,
         });
     } else{
         await updateDoc(main_deck, {
-            [user_string]: stored_data,
+            [card_data.id]: stored_data,
         });
     }
 
