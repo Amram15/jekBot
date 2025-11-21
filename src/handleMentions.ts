@@ -1,33 +1,28 @@
 import axios from "axios";
 import { Client, GuildMemberManager, Message, TextChannel } from "discord.js";
-import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
+import { GoogleGenAI, HarmBlockThreshold, HarmCategory } from "@google/genai";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI);
+const ai = new GoogleGenAI({
+	apiKey: process.env.GEMINI,
+});
 
-const generationConfig = {
-	temperature: 1,
-	topP: 0.95,
-	topK: 64,
-	maxOutputTokens: 1800,
-	responseMimeType: "text/plain",
-};
-
+const tools = [{ urlContext: {} }, { codeExecution: {} }];
 const safetySettings = [
 	{
 		category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-		threshold: HarmBlockThreshold.BLOCK_NONE,
+		threshold: HarmBlockThreshold.OFF,
 	},
 	{
 		category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-		threshold: HarmBlockThreshold.BLOCK_NONE,
+		threshold: HarmBlockThreshold.OFF,
 	},
 	{
 		category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-		threshold: HarmBlockThreshold.BLOCK_NONE,
+		threshold: HarmBlockThreshold.OFF,
 	},
 	{
 		category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-		threshold: HarmBlockThreshold.BLOCK_NONE,
+		threshold: HarmBlockThreshold.OFF,
 	},
 ];
 
@@ -158,16 +153,31 @@ async function urlToGenerativePart(url, mimeType) {
 async function getAI(message: Message, imageParts: any[]) {
 	const filteredPrompt = message.content.replace(/<@1240120990797922315>/g, "@Jek");
 
-	const model = genAI.getGenerativeModel({
-		model: "gemini-2.0-flash",
-		safetySettings,
-		generationConfig,
+	const contents = [...imageParts, { text: filteredPrompt }];
+	const config = {
+		thinkingConfig: {
+			thinkingBudget: 4000,
+		},
 		systemInstruction: systemInstruction,
-	});
-	const result = await model.generateContent([filteredPrompt, ...imageParts]);
-	const response = await result.response;
+		safetySettings: safetySettings,
+		tools: tools,
+	};
 
-	const filteredOutput = insertPings(message.guild.members, response.text());
+	const response = await ai.models.generateContent({
+		model: "gemini-flash-latest",
+		contents: contents,
+		config: config,
+	});
+
+	let output = "";
+
+	if (response.text) {
+		output = response.text;
+	} else if (response.codeExecutionResult) {
+		output += `\n\n\`\`\`\nCode Execution Result:\n${response.codeExecutionResult}\`\`\``;
+	}
+
+	const filteredOutput = insertPings(message.guild.members, output);
 	return filteredOutput;
 }
 
