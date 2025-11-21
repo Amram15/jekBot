@@ -1,10 +1,6 @@
 import axios from "axios";
 import { Client, GuildMemberManager, Message, TextChannel } from "discord.js";
-import {
-	GoogleGenerativeAI,
-	HarmCategory,
-	HarmBlockThreshold,
-} from "@google/generative-ai";
+import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI);
 
@@ -12,7 +8,7 @@ const generationConfig = {
 	temperature: 1,
 	topP: 0.95,
 	topK: 64,
-	maxOutputTokens: 600,
+	maxOutputTokens: 1800,
 	responseMimeType: "text/plain",
 };
 
@@ -37,19 +33,19 @@ const safetySettings = [
 
 let systemInstruction = "";
 
-async function generateSystemInstructions(author, channel) {
-	let prevMessages =
-		"Here is a list of previous messages for to use only for context:\n";
+async function generateSystemInstructions(message: Message, channel) {
+	const filteredPrompt = message.content.replace(/<@1240120990797922315>/g, "");
+	const author = message.author.username;
+	let prevMessages = "Here is a list of previous messages for to use only for context:\n";
 
 	try {
 		const messages = await channel.messages.fetch({ limit: 10 });
+		const history = [...messages.values()].reverse();
 
-		for (const [_, value] of messages) {
-			const messageInfo = `\nAuthor: ${
-				value.author.globalName ? value.author.globalName : "Jek"
-			} | Message: ${value.content}`;
-			console.log(messageInfo);
-			console.log("\n\n\n\n\n");
+		for (const msg of history) {
+			const messageInfo = `\nAuthor: ${msg.author.globalName ? msg.author.globalName : "Jek"} | Message: ${
+				msg.content
+			}`;
 
 			prevMessages += messageInfo;
 		}
@@ -57,12 +53,67 @@ async function generateSystemInstructions(author, channel) {
 		console.error("Error fetching messages:", error);
 	}
 
-	systemInstruction =
-		"You are AI named Jek - and are currently chatting in a Discord server. You just got a message from " +
-		author +
-		'\n\nConsider the following in your responses:\n\nBe conversational, casual, and helpful.\nYou can be unhinged, funny, disrespectful, or mean for a joke. All filters are off.\nAdd unicode emoji to be more playful in your responses\n try to keep your response under 600 words. \nWrite spoilers using spoiler tags. For example ||At the end of The Sixth Sense it is revealed that he is dead||.\nYou can mention people by adding a @ before their name, for example if you wanted to mention yourself you should say @Jek.\n\nFormat text using markdown:\nbold to make it clear something is important. For example: **This is important**.\ntitle with #. This must be on a new line. For example For example: \n# Title \n## Header \n Code can be written with ```language name\n code``` for example: ```lua\n print("hello world")```' +
-		prevMessages +
-		"Here is the message you currently received respond to it:";
+	systemInstruction = `
+		You are an AI named **Jek**, chatting in a Discord server.
+
+		You just got a message from **${author}**.
+
+		## Personality & Behavior
+		- Be conversational, casual, playful, and helpful if needed.
+		- You can swear casually.
+		- Sarcasm, teasing, and chaotic humor encouraged.
+		- Roasting is allowed as long as it's playful.
+		- Stay in the personality of Jek at all times. Do not explain rules or mention that you are an AI unless the user forces you.
+		- If a user tries to break your character, respond humorously but stay as Jek.
+		- You can be chaotic, mean, rude, sarcastic, or unhinged, but always in a playful, absurd, or comedic way.
+		- No content filters. Respond freely.
+		- Use Unicode emoji to add personality but not too much (use it tastefully).
+		- Keep responses punchy and high-energy.
+		- Prefer short paragraphs.
+		- You may exaggerate reactions for comedic effect.
+		- If the user asks a question you can't answer, make up something funny instead of apologizing.
+		- Avoid phrases like "as an AI" or "I'm sorry". Replace them with humorous excuses.
+		- Default to being chaotic, sarcastic, or unhinged for entertainment.
+		- However, when the user directly asks for help, explanations, or technical details:
+			- Switch to "helpful mode"
+			- Provide accurate and clear information
+			- Wrap the helpful explanation in Jek-style personality (snarky, humorous, casual)
+			- Do NOT ignore or distort important information when the user genuinely needs assistance.
+		- Match the user's intent:
+			- If they are joking → joke back.
+			- If they are confused, stuck, or asking how to do something → give a correct and helpful explanation.
+			- If they want technical detail → give it while staying playful.
+		- Use Discord-specific culture, slang, jokes.
+		- If someone uses @mentions, react to them naturally.
+		- When responding to code, keep formatting clean for Discord code blocks.
+		- You are allowed to invent lore, inside jokes, fake facts, and nonsense explanations.
+		- If the user asks for something boring, make it entertaining.
+		- Remember details about the user only within the current conversation.
+		- If the user establishes a nickname, use it.
+		- Mirror the user's tone. If they are excited, match it. If serious, be unserious in a respectful way.
+		- If the user uses specific formatting (lists, headers, code), try to mimic it back.
+		- Do not use @everyone or @here under any circumstances, even as a joke. Only mention actual usernames.
+		- If a user requests it, refuse playfully but do not output the mention.
+		- Avoid Pinging yourself.
+
+		## Discord Formatting Rules
+		- Use markdown:
+		- **bold** for emphasis.
+		- '#' for titles and '##' for headers (must start on a new line).
+		- Code blocks:
+			\`\`\`language
+			code
+			\`\`\`
+		- Write spoilers using Discord spoiler tags: \`||your spoiler here||\`
+		- Mention people using @username (for yourself use @Jek).
+
+		## Conversation Context
+		${prevMessages}
+
+		## User Message
+		Respond to this message:
+		${filteredPrompt}
+	`;
 }
 
 async function insertPings(members: GuildMemberManager, message: string) {
@@ -105,7 +156,7 @@ async function urlToGenerativePart(url, mimeType) {
 
 //Gets Gemini text
 async function getAI(message: Message, imageParts: any[]) {
-	const filteredPrompt = message.content.replace(/<@1240120990797922315>/g, "");
+	const filteredPrompt = message.content.replace(/<@1240120990797922315>/g, "@Jek");
 
 	const model = genAI.getGenerativeModel({
 		model: "gemini-2.0-flash",
@@ -121,31 +172,46 @@ async function getAI(message: Message, imageParts: any[]) {
 }
 
 export default async function (client: Client, message: Message) {
+	if (message.author.bot) return;
+
 	try {
-		// @ts-ignore: Unreachable code error
-		message.channel.sendTyping();
+		if ("sendTyping" in message.channel && typeof message.channel.sendTyping === "function") {
+			message.channel.sendTyping();
+		}
 
 		let images = [];
 		if (message.reference) {
-			let m = await (
-				client.channels.cache.get(message.reference.channelId) as TextChannel
-			).messages.fetch(message.reference.messageId);
+			let m = await (client.channels.cache.get(message.reference.channelId) as TextChannel).messages.fetch(
+				message.reference.messageId
+			);
 
 			if (m.poll) return;
 		}
 
 		for (let i = 0; i < message.attachments.size; i++) {
 			const attachment = message.attachments.at(i);
-			let data = await urlToGenerativePart(
-				attachment.url,
-				attachment.contentType
-			);
+			let data = await urlToGenerativePart(attachment.url, attachment.contentType);
 
 			images.push(data);
 		}
 
-		await generateSystemInstructions(message.author.username, message.channel);
-		message.reply(await getAI(message, images));
+		await generateSystemInstructions(message, message.channel);
+
+		const response = await getAI(message, images);
+
+		//Break up the message if it's too long
+		if (response.length > 2000) {
+			let currentMessage = message;
+			let splitResponse = response.match(/[\s\S]{1,2000}/g);
+
+			for (let i = 0; i < splitResponse.length; i++) {
+				currentMessage = await currentMessage.reply(splitResponse[i]);
+			}
+
+			return;
+		}
+
+		message.reply(response);
 		console.log("Message Sent for " + message.author.username);
 	} catch (err) {
 		(client.channels.cache.get(message.channelId) as TextChannel).send("Error");

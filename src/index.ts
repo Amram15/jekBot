@@ -21,7 +21,7 @@ const client = new Client({
 	],
 });
 
-client.on("ready", (c) => {
+client.on("clientReady", (c) => {
 	setupCommands(c);
 	console.log(`${c.user.username} is online!`);
 });
