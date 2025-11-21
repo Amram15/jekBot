@@ -1,7 +1,7 @@
 import { getFirestore, collection, doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
 import { initFirebase } from "../firebase/firebaseapp";
 import axios from "axios";
-import { ApplicationCommandOptionType, Client, CommandInteraction, EmbedBuilder, PermissionsBitField } from "discord.js";
+import { ApplicationCommandOptionType, ChatInputCommandInteraction, Client, CommandInteraction, EmbedBuilder, PermissionsBitField } from "discord.js";
 import { warn } from "console";
 
 const app = initFirebase();
@@ -89,7 +89,7 @@ module.exports = {
         },
     ],
 
-    callback: async (client: Client, interaction: CommandInteraction) => {
+    callback: async (client: Client, interaction: ChatInputCommandInteraction) => {
         await interaction.deferReply();
 
         if (interaction.user.id != "264066370348646400") {

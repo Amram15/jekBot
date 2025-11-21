@@ -2,6 +2,7 @@ import {
 	Client,
 	CommandInteraction,
 	ApplicationCommandOptionType,
+	ChatInputCommandInteraction,
 } from "discord.js";
 import { getFirestore, collection, doc, setDoc } from "firebase/firestore";
 import { initFirebase } from "../firebase/firebaseapp";
@@ -42,7 +43,7 @@ module.exports = {
 		},
 	],
 
-	callback: async (client: Client, interaction: CommandInteraction) => {
+	callback: async (client: Client, interaction: ChatInputCommandInteraction) => {
 		await interaction.deferReply();
 
 		const question = String(interaction.options.get("question")?.value);

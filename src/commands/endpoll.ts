@@ -4,6 +4,7 @@ import {
 	PollData,
 	ApplicationCommandOptionType,
 	TextChannel,
+	ChatInputCommandInteraction,
 } from "discord.js";
 import {
 	getFirestore,
@@ -30,7 +31,7 @@ module.exports = {
 		},
 	],
 
-	callback: async (client: Client, interaction: CommandInteraction) => {
+	callback: async (client: Client, interaction: ChatInputCommandInteraction) => {
 		await interaction.deferReply();
 
 		const messageId = String(interaction.options.get("message-id")?.value);

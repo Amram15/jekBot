@@ -1,6 +1,6 @@
 import {
 	Client,
-	CommandInteraction,
+	ChatInputCommandInteraction,
 	ApplicationCommandOptionType,
 } from "discord.js";
 import { getFirestore, collection, doc, setDoc } from "firebase/firestore";
@@ -55,7 +55,7 @@ module.exports = {
 		},
 	],
 
-	callback: async (client: Client, interaction: CommandInteraction) => {
+	callback: async (client: Client, interaction: ChatInputCommandInteraction) => {
 		await interaction.deferReply();
 
 		const trader1 = interaction.options.get("trader1")?.user;

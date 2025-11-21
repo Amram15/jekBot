@@ -1,10 +1,5 @@
 import "dotenv/config";
-import {
-	Client,
-	CommandInteraction,
-	IntentsBitField,
-	InteractionResponse,
-} from "discord.js";
+import { Client, CommandInteraction, IntentsBitField, InteractionResponse } from "discord.js";
 import setupCommands from "./setupCommands";
 import handleCommands from "./handleCommands";
 import handleMentions from "./handleMentions";
@@ -18,6 +13,7 @@ const client = new Client({
 		IntentsBitField.Flags.GuildMembers,
 		IntentsBitField.Flags.GuildMessages,
 		IntentsBitField.Flags.MessageContent,
+		IntentsBitField.Flags.GuildVoiceStates,
 	],
 });
 
