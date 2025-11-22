@@ -99,7 +99,10 @@ export default async function (
 			if (interaction.customId != "JekVoteModal") return;
 			await interaction.deferUpdate();
 
-			let answers = [...interaction.fields.fields.values()];
+			let answers = [...interaction.fields.fields.values()].map((a) => ({
+				customId: a.customId,
+				value: (a as any).value,
+			}));
 
 			//Error Check Answers
 			const validation = validateAnswers(answers);

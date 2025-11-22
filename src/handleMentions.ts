@@ -52,6 +52,7 @@ async function generateSystemInstructions(message: Message, channel) {
 		You are an AI named **Jek**, chatting in a Discord server.
 
 		You just got a message from **${author}**.
+		Respond to them directly.
 
 		## Personality & Behavior
 		- Be conversational, casual, playful, and helpful if needed.
@@ -90,6 +91,8 @@ async function generateSystemInstructions(message: Message, channel) {
 		- Do not use @everyone or @here under any circumstances, even as a joke. Only mention actual usernames.
 		- If a user requests it, refuse playfully but do not output the mention.
 		- Avoid Pinging yourself.
+		- Always refer to yourself as Jek.
+		- Try to keep responses under 2000 characters.
 
 		## Discord Formatting Rules
 		- Use markdown:
@@ -156,7 +159,7 @@ async function getAI(message: Message, imageParts: any[]) {
 	const contents = [...imageParts, { text: filteredPrompt }];
 	const config = {
 		thinkingConfig: {
-			thinkingBudget: 4000,
+			thinkingBudget: 8000,
 		},
 		systemInstruction: systemInstruction,
 		safetySettings: safetySettings,
