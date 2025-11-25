@@ -13,7 +13,7 @@ module.exports = {
 
 		const embed = new EmbedBuilder()
 			.setTitle("Pong!")
-			.setDescription("YGO Ban Polls is currently running and connected")
+			.setDescription("Jek is currently running and connected")
 			.setColor(0x00ff00)
 			.addFields(
 				{

@@ -176,8 +176,9 @@ async function getAI(message: Message, imageParts: any[]) {
 
 	if (response.text) {
 		output = response.text;
-	} else if (response.codeExecutionResult) {
-		output += `\n\n\`\`\`\nCode Execution Result:\n${response.codeExecutionResult}\`\`\``;
+	}
+	if (response.codeExecutionResult) {
+		output += `\n\n-#Code Execution Result:\n||\`\`\`\n${response.codeExecutionResult}\`\`\`||`;
 	}
 
 	const filteredOutput = insertPings(message.guild.members, output);
