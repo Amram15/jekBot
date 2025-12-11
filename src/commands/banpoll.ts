@@ -41,7 +41,7 @@ module.exports = {
 			duration: Number(
 				interaction.options.get("time")
 					? interaction.options.get("time").value
-					: 168
+					: 144
 			),
 			allowMultiselect: Boolean(
 				interaction.options.get("multi-choice")
